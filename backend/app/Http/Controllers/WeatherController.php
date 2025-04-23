@@ -7,8 +7,7 @@ use GuzzleHttp\Client;
 
 class WeatherController extends Controller
 {
-    protected $apiKey = '94c351a773ba708f789c7fe827a0cefd
-'; // Replace with your actual API key
+    protected $apiKey = env('OPENWEATHERMAP_API_KEY'); 
 
     public function getCurrentWeather(Request $request)
     {

@@ -18,7 +18,7 @@ export interface WeatherData {
 }
 
 export default function Dashboard() {
-  const { weatherData: data, loading, error } = useWeatherStore();
+  const { data, loading, error } = useWeatherStore();
 
   const renderWeatherData = () => {
     if (loading) {

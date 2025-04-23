@@ -1,9 +1,11 @@
 // components/SearchBox.tsx
 import React, { useState } from 'react';
+import useWeatherStore from '../hooks/useWeatherStore';
+import '../styles/SearchBox.css';
 
 const SearchBox = () => {
   const [city, setCity] = useState('');
-  const { fetchWeather } = useWeatherStore();
+  const { fetchWeather, isLoading } = useWeatherStore();
 
   const handleSearch = async () => {
     if (city) {
@@ -12,67 +14,29 @@ const SearchBox = () => {
   };
 
   return (
-    <div>
+    <div className="search-box">
+      <label htmlFor="city-input" className="visually-hidden">
+        Enter a city name
+      </label>
       <input
+        id="city-input"
         type="text"
         value={city}
         onChange={(e) => setCity(e.target.value)}
         placeholder="Enter a city name"
+        aria-label="Enter a city name"
+        className="input"
       />
-      <button onClick={handleSearch}>Search</button>
+      <button
+        onClick={handleSearch}
+        disabled={isLoading}
+        aria-busy={isLoading}
+        className="button"
+      >
+        {isLoading ? 'Loading...' : 'Search'}
+      </button>
     </div>
   );
 };
 
 export default SearchBox;
-
-interface WeatherData {
-  temperature: number;
-  humidity: number;
-  description: string;
-  windSpeed: number;
-}
-
-interface WeatherState {
-  weatherData: WeatherData | null;
-  isLoading: boolean;
-  error: string | null;
-}
-
-function useWeatherStore() {
-  const [state, setState] = useState<WeatherState>({
-    weatherData: null,
-    isLoading: false,
-    error: null
-  });
-
-  const fetchWeather = async (city: string) => {
-    try {
-      setState(prev => ({ ...prev, isLoading: true, error: null }));
-      const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}`);
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to fetch weather data');
-      }
-
-      setState(prev => ({
-        ...prev,
-        weatherData: data,
-        isLoading: false
-      }));
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        error: error instanceof Error ? error.message : 'An error occurred',
-        isLoading: false
-      }));
-    }
-  };
-
-  return {
-    ...state,
-    fetchWeather
-  };
-}
-

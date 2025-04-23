@@ -1,7 +1,7 @@
 // stores/useWeatherStore.ts
 import { create } from 'zustand';
 
-export interface WeatherData {
+export interface Weather {
   current: {
     temp?: number;
     humidity?: number;
@@ -13,26 +13,26 @@ export interface WeatherData {
   };
 }
 
-export interface WeatherStore {
-  weatherData: WeatherData | null;
+interface WeatherStore {
+  data: Weather | null;
   loading: boolean;
   error: string | null;
   fetchWeather: (city: string) => Promise<void>;
 }
 
 const useWeatherStore = create<WeatherStore>((set) => ({
-  weatherData: null,
+  data: null,
   loading: false,
   error: null,
-  fetchWeather: async (city: string) => {
+  fetchWeather: async (city) => {
     set({ loading: true, error: null });
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/weather?city=${encodeURIComponent(city)}`);
-      if (!response.ok) throw new Error('Failed to fetch weather data');
+      const response = await fetch(`/api/weather?city=${city}`);
       const data = await response.json();
-      set({ weatherData: data, loading: false });
+      set({ data, loading: false });
     } catch (error) {
-      set({ error: (error as Error).message, loading: false });
+      set({ data: null, loading: false, error: 'Failed to fetch weather' });
+      console.error('Failed to fetch weather:', error);
     }
   },
 }));
